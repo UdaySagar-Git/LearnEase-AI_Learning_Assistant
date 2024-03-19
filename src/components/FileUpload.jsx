@@ -1,10 +1,8 @@
 "use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import { pdfjs } from "react-pdf";
-import GenerateQuiz from "./GenerateQuiz";
-import { useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
-import { Laila } from "next/font/google";
 import Link from "next/link";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -12,13 +10,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const FileUpload = () => {
   const [pdfText, setPdfText] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
-
-  // const handleFileChange = (event) => {
-  //   const file = event.target.files[0];
-  //   setSelectedFile(file);
-  // };
-
-  const router = useRouter();
 
   useEffect(() => {
     if (selectedFile) {
@@ -46,7 +37,6 @@ const FileUpload = () => {
             }
           });
         }
-
         setPdfText(extractedText);
       } catch (error) {
         console.error("Error converting PDF to text:", error);
@@ -54,33 +44,11 @@ const FileUpload = () => {
     }
   };
 
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
-  const handleDragEnter = (event) => {
-    event.preventDefault();
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    if (file.type === "application/pdf") {
-      setSelectedFile(file);
-    } else {
-      console.log("Please select a PDF file.");
-    }
-  };
-
-  const fileInputRef = useRef(null);
-
-  const handleFileClick = () => {
-    fileInputRef.current.click();
-  };
+  const fileInputRef = useRef();
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file.type === "application/pdf") {
+    if (file && file.type === "application/pdf") {
       setSelectedFile(file);
     } else {
       console.log("Please select a PDF file.");
@@ -97,15 +65,20 @@ const FileUpload = () => {
         <div className="flex h-[92vh] justify-center items-center cursor-pointer w-screen  bg-gradient-to-r from-rose-100 to-teal-100 border">
           <div
             className="bg-slate-200 shadow-md p-5 rounded-lg h-[200px] w-[300px] flex flex-col items-center justify-center hover:bg-gray-300  border-gray-700"
-            onDragOver={handleDragOver}
-            onDragEnter={handleDragEnter}
-            onDrop={handleDrop}
-            onClick={handleFileClick}
+            onDrop={handleFileChange}
+            onClick={() => fileInputRef.current?.click()}
           >
             <Inbox className="w-10 h-10 text-blue-500" />
             <p className="mt-2 text-sm text-slate-400">
               Drop PDF Here or Click to Upload
             </p>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={handleFileChange}
+              className="hidden"
+              ref={fileInputRef}
+            />
           </div>
         </div>
       ) : (
@@ -113,10 +86,7 @@ const FileUpload = () => {
           <div className="flex w-full h-[80vh] justify-center items-center cursor-pointer flex-col ">
             <div
               className="bg-slate-200 shadow-md p-5 rounded-lg h-[200px] w-[300px] flex flex-col items-center justify-center hover:bg-gray-300"
-              onDragOver={handleDragOver}
-              onDragEnter={handleDragEnter}
-              onDrop={handleDrop}
-              onClick={handleFileClick}
+              onDrop={handleFileChange}
             >
               <Inbox className="w-10 h-10 text-blue-500" />
               <p className="mt-2 text-sm text-slate-400">
@@ -128,7 +98,7 @@ const FileUpload = () => {
                 type="file"
                 accept=".pdf"
                 onChange={handleFileChange}
-                style={{ display: "none" }}
+                className="hidden"
                 ref={fileInputRef}
               />
             </div>
